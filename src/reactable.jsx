@@ -319,7 +319,7 @@
                 }
 
                 if (this.props.sort.column === column.key) {
-                    sortClass = 'reactable-header-sort';
+                    sortClass += 'reactable-header-sort';
                     if (this.props.sort.direction === 1) {
                         sortClass += '-asc';
                     }
