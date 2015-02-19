@@ -296,6 +296,8 @@
         },
         render: function() {
             var children = React.Children.children(this.props.children);
+            var tdContents;
+            var className;
 
             if (
                 this.props.data &&
@@ -303,16 +305,27 @@
                 typeof this.props.columns.map === 'function'
             ) {
                 children = children.concat(this.props.columns.map(function(column, i) {
-                    if (this.props.data.hasOwnProperty(column.key)) {
-                        return Td({column: column, key: column.key}, this.props.data[column.key]);
+                    if (column.tdDisplay) {
+                      tdContents = column.tdDisplay(this.props.data, column, i)
+                    } else if (this.props.tdDisplay) {
+                      tdContents = this.props.tdDisplay(this.props.data, column, i)
+                    } else if (this.props.data.hasOwnProperty(column.key)) {
+                      tdContents = this.props.data[column.key];
                     } else {
-                        return Td({column: column, key: column.key});
+                      tdContents = '';
                     }
+                    return Td({column: column, key: column.key}, tdContents);
                 }.bind(this)));
             }
 
             // Manually transfer props
             var props = filterPropsFrom(this.props);
+
+            if (typeof this.props.className === 'string') {
+              props.className = this.props.className;
+            } else if (typeof this.props.className === 'function') {
+              props.className = this.props.className(this.props.data);
+            }
 
             return React.DOM.tr(props, children);
         }
@@ -411,7 +424,7 @@
 
             return (
                 React.DOM.tr({className: "reactable-filterer"}, 
-                    React.DOM.td({colSpan: this.props.colSpan}, 
+                    React.DOM.td({colSpan: this.props.colSpan, tdDisplay: this.props.tdDisplay}, 
                         FiltererInput({onFilter: this.props.onFilter, 
                                        value: this.props.value})
                     )
@@ -774,7 +787,7 @@
                     }
 
                     return (
-                        Tr({columns: columns, key: i, data: data})
+                        Tr({columns: columns, key: i, data: data, className: this.props.trClassName, tdDisplay: this.props.tdDisplay})
                     );
                 }.bind(this)));
             }
