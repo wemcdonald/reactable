@@ -320,6 +320,16 @@
 
             // Manually transfer props
             var props = filterPropsFrom(this.props);
+            if (props.trProps) {
+              for (var propertyName in props.trProps) {
+                props[propertyName] = props.trProps[propertyName];
+              }
+            }
+            if (props.onClick && this.props.data) {
+              var callback = props.onClick;
+              var data = this.props.data;
+              props.onClick = function (e) { callback(data) }
+            }
 
             if (typeof this.props.className === 'string') {
               props.className = this.props.className;
@@ -763,6 +773,9 @@
             if (this.data && typeof this.data.map === 'function') {
                 // Build up the columns array
                 children = children.concat(this.data.map(function(data, i) {
+                    if (Object.keys(data).length == 0) {
+                      return null;
+                    }
                     // Loop through the keys in each data row and build a td for it
                     for (var k in data) {
                         if (data.hasOwnProperty(k)) {
@@ -787,7 +800,7 @@
                     }
 
                     return (
-                        <Tr columns={columns} key={i} data={data} className={this.props.trClassName} tdDisplay={this.props.tdDisplay}/>
+                        <Tr columns={columns} key={i} data={data} className={this.props.trClassName} trProps={this.props.trProps} tdDisplay={this.props.tdDisplay}/>
                     );
                 }.bind(this)));
             }
@@ -847,7 +860,7 @@
                              currentFilter={this.state.filter}
                              sort={this.state.currentSort}
                              sortableColumns={this._sortable}
-                             onSort={this.onSort}
+                             onSort={this.props.onSort || this.onSort}
                              key="thead"/>
                     : null
                 ),
