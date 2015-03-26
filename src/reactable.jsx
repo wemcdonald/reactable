@@ -328,7 +328,7 @@
             if (props.onClick && this.props.data) {
               var callback = props.onClick;
               var data = this.props.data;
-              props.onClick = function (e) { callback(data) }
+              props.onClick = function (e) { callback(e, data) }
             }
 
             if (typeof this.props.className === 'string') {
